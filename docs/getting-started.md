@@ -70,5 +70,5 @@ specified `--table`.
 Do that once for each SQL table in your database.
 
 If you pass `--full` to `atlas-skeleton`, it will additionally generate empty
-`MapperEvents`, `Record`, `RecordSet`, and `TableEvents` classes. (These are
+`MapperEvents`, `Fields`, `Record`, `RecordSet`, and `TableEvents` classes. (These are
 useful only if you want to add custom behaviors.)
