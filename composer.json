@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "atlas/info": "~1.0",
+        "atlas/info": "dev-feature/typehint-fields as 1.2.1",
         "atlas/mapper": "~1.0",
         "psr/log": "~1.0"
     },
@@ -33,5 +33,11 @@
     },
     "bin": [
         "bin/atlas-skeleton.php"
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/sunkan/Atlas.Info"
+        }
     ]
 }

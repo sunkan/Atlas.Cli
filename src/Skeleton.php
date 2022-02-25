@@ -195,7 +195,12 @@ class Skeleton
                 $coltype = substr($coltype, 0, -9);
             }
 
-            $props .= " * @property mixed \${$col['name']} {$coltype}";
+            $typeHint = $col['native'] ?? 'mixed';
+            if (!$col['notnull'] && !$col['autoinc'] && $typeHint !== 'mixed') {
+                $typeHint .= '|null';
+            }
+
+            $props .= " * @property $typeHint \${$col['name']} {$coltype}";
             if ($col['size'] !== null) {
                 $props .= "({$col['size']}";
                 if ($col['scale'] !== null) {
