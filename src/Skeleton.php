@@ -169,6 +169,37 @@ class Skeleton
         }
     }
 
+    protected function getPropertyString(array $col, string $typeHint): string
+    {
+        $coltype = $col['type'];
+        $unsigned = '';
+        if (substr(strtoupper($coltype), -9) == ' UNSIGNED') {
+            $unsigned = substr($coltype, -9);
+            $coltype = substr($coltype, 0, -9);
+        }
+
+        if (!$col['notnull'] && !$col['autoinc'] && $typeHint !== 'mixed') {
+            $typeHint .= '|null';
+        }
+
+        $prop = "$typeHint \${$col['name']} {$coltype}";
+        if ($col['size'] !== null) {
+            $prop .= "({$col['size']}";
+            if ($col['scale'] !== null) {
+                $prop .= ",{$col['scale']}";
+            }
+            $prop .= ')';
+        }
+
+        $prop .= $unsigned;
+
+        if ($col['notnull'] === true) {
+            $prop .= ' NOT NULL';
+        }
+
+        return $prop;
+    }
+
     protected function getVars(string $type, string $table, array $columns, $sequence) : array
     {
         $primary = '';
@@ -187,34 +218,14 @@ class Skeleton
             }
             $info .= "        '{$col['name']}' => " . var_export($col, true) . ',' . PHP_EOL;
 
-
-            $coltype = $col['type'];
-            $unsigned = '';
-            if (substr(strtoupper($coltype), -9) == ' UNSIGNED') {
-                $unsigned = substr($coltype, -9);
-                $coltype = substr($coltype, 0, -9);
-            }
-
             $typeHint = $col['native'] ?? 'mixed';
-            if (!$col['notnull'] && !$col['autoinc'] && $typeHint !== 'mixed') {
-                $typeHint .= '|null';
+            if ($col['native'] && $col['type'] === 'enum') {
+                $props .= " * @property-write " . $this->getPropertyString($col, $typeHint . '|\BackedEnum') . PHP_EOL;
+                $props .= " * @property-read " . $this->getPropertyString($col, $typeHint) . PHP_EOL;
             }
-
-            $props .= " * @property $typeHint \${$col['name']} {$coltype}";
-            if ($col['size'] !== null) {
-                $props .= "({$col['size']}";
-                if ($col['scale'] !== null) {
-                    $props .= ",{$col['scale']}";
-                }
-                $props .= ')';
+            else {
+                $props .= " * @property " . $this->getPropertyString($col, $typeHint) . PHP_EOL;
             }
-
-            $props .= $unsigned;
-
-            if ($col['notnull'] === true) {
-                $props .= ' NOT NULL';
-            }
-            $props .= PHP_EOL;
         }
 
         $primary = '[' . PHP_EOL . $primary . '    ]';
